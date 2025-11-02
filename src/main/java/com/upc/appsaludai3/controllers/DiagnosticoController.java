@@ -41,9 +41,9 @@ public class DiagnosticoController {
         diagnosticoService.borrar(id);
     }
 
-    @GetMapping("diagnosticos/usuario/{idUsuario}")
-    public List<DiagnosticoDTO> buscarPorUsuario(@PathVariable Long idUsuario) {
-        return diagnosticoService.buscarPorUsuario(idUsuario);
+    @GetMapping("diagnosticos/usuario/{idPerfil}")
+    public List<DiagnosticoDTO> buscarPorPerfil(@PathVariable Long idPerfil) {
+        return diagnosticoService.buscarPorPerfil(idPerfil);
     }
 
 

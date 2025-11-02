@@ -1,13 +1,15 @@
 package com.upc.appsaludai3.security.services;
 
 
+
+
 import com.upc.appsaludai3.security.entities.Role;
 import com.upc.appsaludai3.security.entities.User;
 import com.upc.appsaludai3.security.repositories.RoleRepository;
 import com.upc.appsaludai3.security.repositories.UserRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
@@ -22,10 +24,13 @@ public class UserService {
     }
 
     @Transactional
-    public void grabar(Role role) {roleRepository.save(role);}
+    public void grabar(Role role) {
+        roleRepository.save(role);
+    }
     public Integer insertUserRol(Long user_id, Long rol_id) {
         Integer result = 0;
         userRepository.insertUserRol(user_id, rol_id);
         return 1;
     }
+
 }

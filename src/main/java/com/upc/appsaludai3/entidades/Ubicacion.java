@@ -21,5 +21,5 @@ public class Ubicacion {
     private String direccion;
     @OneToMany(mappedBy = "ubicacion", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<UsuarioGeneral> usuarios;
+    private List<Perfil> perfiles;
 }

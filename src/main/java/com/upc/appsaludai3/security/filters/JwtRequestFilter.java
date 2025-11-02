@@ -1,5 +1,6 @@
 package com.upc.appsaludai3.security.filters;
 
+
 import com.upc.appsaludai3.security.services.CustomUserDetailsService;
 import com.upc.appsaludai3.security.util.JwtUtil;
 import jakarta.servlet.FilterChain;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-
 /*
  (1)
     JwtRequestFilter es un filtro de seguridad personalizado que se encarga de procesar

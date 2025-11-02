@@ -1,6 +1,4 @@
 package com.upc.appsaludai3.security.entities;
-
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,7 +9,7 @@ import lombok.*;
 @Entity
 @Table(name = "roles")
 @Data
-public class Role {
+public class Role { //No necesita conocer a los Users, por eso no es bidireccional
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

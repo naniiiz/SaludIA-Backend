@@ -1,6 +1,8 @@
 package com.upc.appsaludai3.security.config;
 
 
+
+
 import com.upc.appsaludai3.security.filters.JwtRequestFilter;
 import com.upc.appsaludai3.security.services.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
@@ -50,7 +52,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // deshabilitar CSRF ya que no es necesario para una API REST
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/authenticate").permitAll()
-
+                        //.requestMatchers("/api/proveedores").hasRole("ADMIN")
                         .anyRequest().authenticated() // cualquier endpoint puede ser llamado con tan solo autenticarse
                         //.anyRequest().denyAll() // aquí se obliga a todos los endpoints usen @PreAuthorize
                 )

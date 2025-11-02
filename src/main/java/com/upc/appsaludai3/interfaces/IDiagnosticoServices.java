@@ -12,5 +12,5 @@ public interface IDiagnosticoServices {
     void borrar(Long id);
     List<DiagnosticoDTO> findAll();
     Diagnostico actualizar(Diagnostico diagnostico);
-    List<DiagnosticoDTO> buscarPorUsuario(Long idUsuario);
+    List<DiagnosticoDTO> buscarPorPerfil(Long idPerfil);
 }

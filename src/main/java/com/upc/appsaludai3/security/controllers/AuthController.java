@@ -1,10 +1,12 @@
 package com.upc.appsaludai3.security.controllers;
 
 
+
 import com.upc.appsaludai3.security.dtos.AuthRequestDTO;
 import com.upc.appsaludai3.security.dtos.AuthResponseDTO;
 import com.upc.appsaludai3.security.services.CustomUserDetailsService;
 import com.upc.appsaludai3.security.util.JwtUtil;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,7 +37,7 @@ public class AuthController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthResponseDTO> createAuthenticationToken(@RequestBody AuthRequestDTO authRequest) throws Exception {
+    public ResponseEntity<AuthResponseDTO> createAuthenticationToken(@RequestBody @Valid AuthRequestDTO authRequest) throws Exception {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
         );

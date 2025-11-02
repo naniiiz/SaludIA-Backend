@@ -16,7 +16,7 @@ public class DiagnosticoDTO {
     private Long id;
     private Boolean consentimiento;
     private LocalDateTime fecha;
-    private Long idUsuario;
+    private Long idPerfil;
     private Long idEnfermedad;
     private List<Long> idsSintomas;
 

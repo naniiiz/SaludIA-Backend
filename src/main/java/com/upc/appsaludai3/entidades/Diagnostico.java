@@ -24,9 +24,9 @@ public class Diagnostico {
     private LocalDateTime fecha;
     //AGREGADO
     @ManyToOne
-    @JoinColumn(name="idUsuario", nullable = false)
+    @JoinColumn(name="idPerfil", nullable = false)
     @JsonIgnore
-    private UsuarioGeneral usuario;
+    private Perfil perfil;
     // Relación ManyToOne con Enfermedad
     @ManyToOne
     @JoinColumn(name="idEnfermedad", nullable = false)

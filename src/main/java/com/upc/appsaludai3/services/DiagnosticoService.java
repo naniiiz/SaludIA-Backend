@@ -7,7 +7,7 @@ import com.upc.appsaludai3.interfaces.IDiagnosticoServices;
 import com.upc.appsaludai3.repository.DiagnosticoRepository;
 import com.upc.appsaludai3.repository.EnfermedadRepository;
 import com.upc.appsaludai3.repository.SintomaRepository;
-import com.upc.appsaludai3.repository.UsuarioGeneralRepository;
+import com.upc.appsaludai3.repository.PerfilRepository;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class DiagnosticoService implements IDiagnosticoServices {
     @Autowired
     private DiagnosticoRepository diagnosticoRepository;
     @Autowired
-    private UsuarioGeneralRepository usuarioGeneralRepository;
+    private PerfilRepository usuarioGeneralRepository;
     @Autowired
     private EnfermedadRepository enfermedadRepository;
     @Autowired
@@ -41,7 +41,7 @@ public class DiagnosticoService implements IDiagnosticoServices {
         diagnostico.setFecha(diagnosticoDTO.getFecha());
 
         // Relaciones
-        diagnostico.setUsuario(usuarioGeneralRepository.findById(diagnosticoDTO.getIdUsuario()).orElse(null));
+        diagnostico.setPerfil(usuarioGeneralRepository.findById(diagnosticoDTO.getIdPerfil()).orElse(null));
         diagnostico.setEnfermedad(enfermedadRepository.findById(diagnosticoDTO.getIdEnfermedad()).orElse(null));
 
         if (diagnosticoDTO.getIdsSintomas() != null) {
@@ -76,8 +76,8 @@ public class DiagnosticoService implements IDiagnosticoServices {
     }
 
     @Override
-    public List<DiagnosticoDTO> buscarPorUsuario(Long idUsuario) {
-        return diagnosticoRepository.findByUsuario_Id(idUsuario)
+    public List<DiagnosticoDTO> buscarPorPerfil(Long idPerfil) {
+        return diagnosticoRepository.findByPerfil_Id(idPerfil)
                 .stream()
                 .map(d -> modelMapper.map(d, DiagnosticoDTO.class))
                 .collect(Collectors.toList());

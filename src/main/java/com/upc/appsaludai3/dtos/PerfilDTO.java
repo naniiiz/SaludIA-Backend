@@ -5,11 +5,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RolDTO {
+public class PerfilDTO {
     private Long id;
-    private String rol;
+    private String nombre;
+    private LocalDate fechaNacimiento;
+    private Long idUbicacion;
+    private Long idRol;
 }
