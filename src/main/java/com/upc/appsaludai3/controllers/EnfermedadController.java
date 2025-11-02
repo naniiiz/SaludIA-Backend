@@ -5,6 +5,7 @@ import com.upc.appsaludai3.entidades.Enfermedad;
 import com.upc.appsaludai3.interfaces.IEnfermedadServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,18 +19,21 @@ public class EnfermedadController {
 
     // CREATE
     @PostMapping("enfermedades")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EnfermedadDTO> registrar(@RequestBody EnfermedadDTO enfermedadDTO) {
         return ResponseEntity.ok(enfermedadService.registrar(enfermedadDTO));
     }
 
     // READ ALL
     @GetMapping("enfermedades")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<EnfermedadDTO>> listar() {
         return ResponseEntity.ok(enfermedadService.findAll());
     }
 
     // READ BY ID
     @GetMapping("enfermedades/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Enfermedad> buscarPorId(@PathVariable Long id) {
         Enfermedad enfermedad = enfermedadService.findById(id);
         if (enfermedad != null) {
@@ -40,6 +44,7 @@ public class EnfermedadController {
 
     // UPDATE
     @PutMapping("enfermedades/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Enfermedad> actualizar(@PathVariable Long id,
                                                  @RequestBody Enfermedad enfermedad) {
         enfermedad.setId(id);
@@ -52,6 +57,7 @@ public class EnfermedadController {
 
     // DELETE
     @DeleteMapping("enfermedades/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> borrar(@PathVariable Long id) {
         enfermedadService.borrar(id);
         return ResponseEntity.noContent().build();
@@ -59,6 +65,7 @@ public class EnfermedadController {
 
     // Buscar por nombre
     @GetMapping("enfermedades/nombre/{palabra}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<EnfermedadDTO>> buscarPorNombre(@PathVariable String palabra) {
         return ResponseEntity.ok(enfermedadService.buscarPorNombre(palabra));
     }
