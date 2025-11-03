@@ -19,7 +19,6 @@ public class PerfilController {
 
     // CREATE - POST
     @PostMapping("perfiles")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PerfilDTO> registrar(@RequestBody PerfilDTO perfilDTO) {
         return ResponseEntity.ok(perfilService.registrar(perfilDTO));
     }
@@ -44,7 +43,6 @@ public class PerfilController {
 
     // UPDATE - PUT
     @PutMapping("perfiles/{id}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<Perfil> actualizar(@PathVariable Long id,
                                              @RequestBody Perfil perfil) {
         perfil.setId(id);
@@ -57,7 +55,6 @@ public class PerfilController {
 
     // DELETE
     @DeleteMapping("perfiles/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> borrar(@PathVariable Long id) {
         perfilService.borrar(id);
         return ResponseEntity.noContent().build();

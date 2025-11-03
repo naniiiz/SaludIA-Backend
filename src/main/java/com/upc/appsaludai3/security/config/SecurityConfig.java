@@ -51,9 +51,10 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable) // deshabilitar CSRF ya que no es necesario para una API REST
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/authenticate").permitAll()
-                        //.requestMatchers("/api/proveedores").hasRole("ADMIN")
-                        .anyRequest().authenticated() // cualquier endpoint puede ser llamado con tan solo autenticarse
+                                .requestMatchers("/api/authenticate").permitAll()
+                                .requestMatchers("/api/register").permitAll() // <-- ¡AQUÍ ESTÁ EL CAMBIO!
+                                //.requestMatchers("/api/proveedores").hasRole("ADMIN")
+                                .anyRequest().authenticated() // cualquier endpoint puede ser llamado con tan solo autenticarse
                         //.anyRequest().denyAll() // aquí se obliga a todos los endpoints usen @PreAuthorize
                 )
                 .sessionManagement(session -> session

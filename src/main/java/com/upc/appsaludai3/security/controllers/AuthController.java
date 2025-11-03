@@ -4,10 +4,13 @@ package com.upc.appsaludai3.security.controllers;
 
 import com.upc.appsaludai3.security.dtos.AuthRequestDTO;
 import com.upc.appsaludai3.security.dtos.AuthResponseDTO;
+import com.upc.appsaludai3.security.dtos.RegisterRequestDTO;
 import com.upc.appsaludai3.security.services.CustomUserDetailsService;
+import com.upc.appsaludai3.security.services.RegisterService;
 import com.upc.appsaludai3.security.util.JwtUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,11 +32,13 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService userDetailsService;
+    private final RegisterService registerService;
 
-    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, CustomUserDetailsService userDetailsService) {
+    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, CustomUserDetailsService userDetailsService, RegisterService registerService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
+        this.registerService = registerService;
     }
 
     @PostMapping("/authenticate")
@@ -56,6 +61,21 @@ public class AuthController {
         authResponseDTO.setRoles(roles);
         authResponseDTO.setJwt(token);
         return ResponseEntity.ok().headers(responseHeaders).body(authResponseDTO);
+    }
+    // === 3. ¡AÑADE ESTE MÉTODO DE REGISTRO! ===
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@RequestBody @Valid RegisterRequestDTO registerRequest) {
+        try {
+            // Llama al servicio para hacer todo el trabajo
+            registerService.registrarUsuario(registerRequest);
+
+            // Si todo sale bien, respondemos con 201 Created
+            return ResponseEntity.status(HttpStatus.CREATED).body("¡Usuario registrado exitosamente!");
+
+        } catch (RuntimeException e) {
+            // Si el servicio lanzó un error (ej. "usuario ya existe"), respondemos con 400
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
 }
