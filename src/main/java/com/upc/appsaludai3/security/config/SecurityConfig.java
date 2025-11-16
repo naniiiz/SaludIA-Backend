@@ -1,7 +1,12 @@
 package com.upc.appsaludai3.security.config;
 
-
-
+// --- ¡IMPORTACIONES AÑADIDAS PARA CORS! ---
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import java.util.Arrays;
+import java.util.List;
+// --- (fin de imports añadidos) ---
 
 import com.upc.appsaludai3.security.filters.JwtRequestFilter;
 import com.upc.appsaludai3.security.services.CustomUserDetailsService;
@@ -45,17 +50,18 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    //(2) Definir el SecurityFilterChain como un bean, ya no necesitamos heredar, configuramos toda la seg.
+    //(2) Definir el SecurityFilterChain como un bean
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable) // deshabilitar CSRF ya que no es necesario para una API REST
+                // --- ¡1. APLICA LA CONFIGURACIÓN DE CORS! ---
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                .csrf(AbstractHttpConfigurer::disable) // deshabilitar CSRF
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers("/api/authenticate").permitAll()
-                                .requestMatchers("/api/register").permitAll() // <-- ¡AQUÍ ESTÁ EL CAMBIO!
-                                //.requestMatchers("/api/proveedores").hasRole("ADMIN")
-                                .anyRequest().authenticated() // cualquier endpoint puede ser llamado con tan solo autenticarse
-                        //.anyRequest().denyAll() // aquí se obliga a todos los endpoints usen @PreAuthorize
+                        .requestMatchers("/api/authenticate").permitAll()
+                        .requestMatchers("/api/register").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -67,17 +73,32 @@ public class SecurityConfig {
         return http.build();
     }
 
-    //Filter opcional si se desea configurar globalmente el acceso a los endpoints sin anotaciones
-    // en cada endpoint
-//    @Bean
-//    public CorsFilter corsFilter() {
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        CorsConfiguration config = new CorsConfiguration();
-//        config.setAllowCredentials(true);
-//        config.addAllowedOrigin("${ip.frontend}");
-//        config.addAllowedMethod("*");
-//        config.addExposedHeader("Authorization");
-//        source.registerCorsConfiguration("/**", config); //para todos los paths
-//        return new CorsFilter(source);
-//    }
+    /**
+     * ¡2. ESTE BEAN ES EL FIX PARA EL ERROR DE CORS!
+     * Copia y pega esta función completa dentro de tu clase SecurityConfig.
+     */
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        // La URL de tu frontend de Angular
+        configuration.setAllowedOrigins(List.of("http://localhost:4200"));
+
+        // Métodos permitidos (¡incluye OPTIONS!)
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+        // ¡LA LÍNEA MÁS IMPORTANTE! Permite la cabecera 'Authorization'
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Cache-Control"));
+
+        // Permite que el navegador envíe credenciales (como el token)
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration); // Aplica esta configuración a TODAS las rutas
+        return source;
+    }
+
+    // Ya no necesitas el bean de CorsFilter, este nuevo bean lo reemplaza.
+    // @Bean
+    // public CorsFilter corsFilter() { ... }
 }

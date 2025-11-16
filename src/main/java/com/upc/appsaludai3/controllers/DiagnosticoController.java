@@ -12,42 +12,42 @@ import java.util.List;
 
 @CrossOrigin(origins = "${ip.frontend}", allowCredentials = "true", exposedHeaders = "Authorization") //para cloud
 @RestController
-@RequestMapping("/api/")
+@RequestMapping("/api")
 public class DiagnosticoController {
     @Autowired
     private IDiagnosticoServices diagnosticoService;
     @Transactional
-    @PostMapping("diagnosticos")
+    @PostMapping("/diagnosticos")
     @PreAuthorize("hasRole('ADMIN')")
     public DiagnosticoDTO registrar(@RequestBody DiagnosticoDTO diagnosticoDTO) {
         return diagnosticoService.registrar(diagnosticoDTO);
     }
 
-    @GetMapping("diagnosticos")
+    @GetMapping("/diagnosticos")
     @PreAuthorize("hasRole('ADMIN')")
     public List<DiagnosticoDTO> findAll() {
         return diagnosticoService.findAll();
     }
 
-    @GetMapping("diagnosticos/{id}")
+    @GetMapping("/diagnosticos/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public Diagnostico findById(@PathVariable Long id) {
         return diagnosticoService.findById(id);
     }
 
-    @PutMapping("diagnosticos/{id}")
+    @PutMapping("/diagnosticos/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public Diagnostico actualizar(@RequestBody Diagnostico diagnostico) {
         return diagnosticoService.actualizar(diagnostico);
     }
 
-    @DeleteMapping("diagnosticos/{id}")
+    @DeleteMapping("/diagnosticos/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public void borrar(@PathVariable Long id) {
         diagnosticoService.borrar(id);
     }
 
-    @GetMapping("diagnosticos/usuario/{idPerfil}")
+    @GetMapping("/diagnosticos/usuario/{idPerfil}")
     @PreAuthorize("hasRole('ADMIN')")
     public List<DiagnosticoDTO> buscarPorPerfil(@PathVariable Long idPerfil) {
         return diagnosticoService.buscarPorPerfil(idPerfil);

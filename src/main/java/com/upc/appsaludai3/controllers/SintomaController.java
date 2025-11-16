@@ -12,26 +12,26 @@ import java.util.List;
 
 @CrossOrigin(origins = "${ip.frontend}", allowCredentials = "true", exposedHeaders = "Authorization") //para cloud
 @RestController
-@RequestMapping("/api/")
+@RequestMapping("/api")
 public class SintomaController {
     @Autowired
     private ISintomaServices sintomaService;
     // CREATE
-    @PostMapping("sintomas")
+    @PostMapping("/sintomas")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SintomaDTO> registrar(@RequestBody SintomaDTO sintomaDTO) {
         return ResponseEntity.ok(sintomaService.registrar(sintomaDTO));
     }
 
     // READ ALL
-    @GetMapping("sintomas")
+    @GetMapping("/sintomas")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<SintomaDTO>> listar() {
         return ResponseEntity.ok(sintomaService.findAll());
     }
 
     // READ BY ID
-    @GetMapping("sintomas/{id}")
+    @GetMapping("/sintomas/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Sintoma> buscarPorId(@PathVariable Long id) {
         Sintoma sintoma = sintomaService.findById(id);
@@ -43,7 +43,7 @@ public class SintomaController {
 
     // UPDATE
 
-    @PutMapping("sintomas/{id}")
+    @PutMapping("/sintomas/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Sintoma> actualizar(@PathVariable Long id,
                                               @RequestBody Sintoma sintoma) {
@@ -56,7 +56,7 @@ public class SintomaController {
     }
 
     // DELETE
-    @DeleteMapping("sintomas/{id}")
+    @DeleteMapping("/sintomas/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> borrar(@PathVariable Long id) {
         sintomaService.borrar(id);
@@ -64,7 +64,7 @@ public class SintomaController {
     }
 
     // Buscar por nombre
-    @GetMapping("sintomas/nombre/{palabra}")
+    @GetMapping("/sintomas/nombre/{palabra}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<SintomaDTO>> buscarPorNombre(@PathVariable String palabra) {
         return ResponseEntity.ok(sintomaService.buscarPorNombre(palabra));

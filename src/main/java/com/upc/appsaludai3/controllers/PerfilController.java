@@ -12,26 +12,26 @@ import java.util.List;
 
 @CrossOrigin(origins = "${ip.frontend}", allowCredentials = "true", exposedHeaders = "Authorization") //para cloud
 @RestController
-@RequestMapping("/api/")
+@RequestMapping("/api")
 public class PerfilController {
     @Autowired
     private IPerfilServices perfilService;
 
     // CREATE - POST
-    @PostMapping("perfiles")
+    @PostMapping("/perfiles")
     public ResponseEntity<PerfilDTO> registrar(@RequestBody PerfilDTO perfilDTO) {
         return ResponseEntity.ok(perfilService.registrar(perfilDTO));
     }
 
     // READ ALL - GET
-    @GetMapping("perfiles")
+    @GetMapping("/perfiles")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<PerfilDTO>> listar() {
         return ResponseEntity.ok(perfilService.findAll());
     }
 
     // READ BY ID - GET
-    @GetMapping("perfiles/{id}")
+    @GetMapping("/perfiles/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Perfil> buscarPorId(@PathVariable Long id) {
         Perfil perfil = perfilService.findById(id);
@@ -42,7 +42,7 @@ public class PerfilController {
     }
 
     // UPDATE - PUT
-    @PutMapping("perfiles/{id}")
+    @PutMapping("/perfiles/{id}")
     public ResponseEntity<Perfil> actualizar(@PathVariable Long id,
                                              @RequestBody Perfil perfil) {
         perfil.setId(id);
@@ -54,14 +54,14 @@ public class PerfilController {
     }
 
     // DELETE
-    @DeleteMapping("perfiles/{id}")
+    @DeleteMapping("/perfiles/{id}")
     public ResponseEntity<Void> borrar(@PathVariable Long id) {
         perfilService.borrar(id);
         return ResponseEntity.noContent().build();
     }
 
     // Buscar por nombre (containing)
-    @GetMapping("perfiles/nombre/{palabra}")
+    @GetMapping("/perfiles/nombre/{palabra}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<PerfilDTO>> buscarPorNombre(@PathVariable String palabra) {
         return ResponseEntity.ok(perfilService.buscarPorNombre(palabra));

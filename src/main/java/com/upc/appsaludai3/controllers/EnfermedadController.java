@@ -12,27 +12,27 @@ import java.util.List;
 
 @CrossOrigin(origins = "${ip.frontend}", allowCredentials = "true", exposedHeaders = "Authorization") //para cloud
 @RestController
-@RequestMapping("/api/")
+@RequestMapping("/api")
 public class EnfermedadController {
     @Autowired
     private IEnfermedadServices enfermedadService;
 
     // CREATE
-    @PostMapping("enfermedades")
+    @PostMapping("/enfermedades")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EnfermedadDTO> registrar(@RequestBody EnfermedadDTO enfermedadDTO) {
         return ResponseEntity.ok(enfermedadService.registrar(enfermedadDTO));
     }
 
     // READ ALL
-    @GetMapping("enfermedades")
+    @GetMapping("/enfermedades")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<EnfermedadDTO>> listar() {
         return ResponseEntity.ok(enfermedadService.findAll());
     }
 
     // READ BY ID
-    @GetMapping("enfermedades/{id}")
+    @GetMapping("/enfermedades/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Enfermedad> buscarPorId(@PathVariable Long id) {
         Enfermedad enfermedad = enfermedadService.findById(id);
@@ -43,7 +43,7 @@ public class EnfermedadController {
     }
 
     // UPDATE
-    @PutMapping("enfermedades/{id}")
+    @PutMapping("/enfermedades/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Enfermedad> actualizar(@PathVariable Long id,
                                                  @RequestBody Enfermedad enfermedad) {
@@ -56,7 +56,7 @@ public class EnfermedadController {
     }
 
     // DELETE
-    @DeleteMapping("enfermedades/{id}")
+    @DeleteMapping("/enfermedades/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> borrar(@PathVariable Long id) {
         enfermedadService.borrar(id);
@@ -64,7 +64,7 @@ public class EnfermedadController {
     }
 
     // Buscar por nombre
-    @GetMapping("enfermedades/nombre/{palabra}")
+    @GetMapping("/enfermedades/nombre/{palabra}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<EnfermedadDTO>> buscarPorNombre(@PathVariable String palabra) {
         return ResponseEntity.ok(enfermedadService.buscarPorNombre(palabra));

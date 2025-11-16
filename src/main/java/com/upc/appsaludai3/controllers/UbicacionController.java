@@ -12,28 +12,28 @@ import java.util.List;
 
 @CrossOrigin(origins = "${ip.frontend}", allowCredentials = "true", exposedHeaders = "Authorization") //para cloud
 @RestController
-@RequestMapping("/api/")
+@RequestMapping("/api")
 public class UbicacionController {
     @Autowired
     private IUbicacionServices ubicacionService;
 
     // CREATE
     @PreAuthorize("hasRole('USER')")
-    @PostMapping("ubicaciones")
+    @PostMapping("/ubicaciones")
     public ResponseEntity<UbicacionDTO> registrar(@RequestBody UbicacionDTO ubicacionDTO) {
         return ResponseEntity.ok(ubicacionService.registrar(ubicacionDTO));
     }
 
     // READ ALL
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("ubicaciones")
+    @GetMapping("/ubicaciones")
     public ResponseEntity<List<UbicacionDTO>> listar() {
         return ResponseEntity.ok(ubicacionService.findAll());
     }
 
     // READ BY ID
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("ubicaciones/{id}")
+    @GetMapping("/ubicaciones/{id}")
     public ResponseEntity<Ubicacion> buscarPorId(@PathVariable Long id) {
         Ubicacion ubicacion = ubicacionService.findById(id);
         if (ubicacion != null) {
@@ -43,7 +43,7 @@ public class UbicacionController {
     }
 
     // UPDATE
-    @PutMapping("ubicaciones/{id}")
+    @PutMapping("/ubicaciones/{id}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<Ubicacion> actualizar(@PathVariable Long id,
                                                 @RequestBody Ubicacion ubicacion) {
@@ -57,7 +57,7 @@ public class UbicacionController {
 
     // DELETE
     @PreAuthorize("hasRole('USER')")
-    @DeleteMapping("ubicaciones/{id}")
+    @DeleteMapping("/ubicaciones/{id}")
     public ResponseEntity<Void> borrar(@PathVariable Long id) {
         ubicacionService.borrar(id);
         return ResponseEntity.noContent().build();
