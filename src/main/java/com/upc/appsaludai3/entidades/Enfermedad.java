@@ -23,7 +23,7 @@ public class Enfermedad {
     private String nombre;
     private String descripcion;
     //Relacion ManyToMany con Sintoma
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name="EnfermedadSintoma",
             joinColumns= @JoinColumn(name="idEnfermedad"),
