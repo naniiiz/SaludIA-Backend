@@ -1,8 +1,8 @@
 package com.upc.appsaludai3.security.filters;
 
-
 import com.upc.appsaludai3.security.services.CustomUserDetailsService;
 import com.upc.appsaludai3.security.util.JwtUtil;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,13 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-/*
- (1)
-    JwtRequestFilter es un filtro de seguridad personalizado que se encarga de procesar
-    las solicitudes HTTP entrantes para verificar la validez de un token JWT (JSON Web Token).
-    Este filtro se ejecuta una vez por cada solicitud y se utiliza para autenticar al usuario
-    y establecer el contexto de seguridad en la aplicación.
- */
+
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
@@ -44,27 +38,38 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7);
-            username = jwtUtil.extractUsername(jwt);
-            System.out.println("USERNAME:" + username);
+
+            // --- BLOQUE TRY-CATCH AGREGADO PARA MANEJAR TOKEN VENCIDO ---
+            try {
+                username = jwtUtil.extractUsername(jwt);
+                System.out.println("✅ Token recibido para usuario: " + username);
+            } catch (ExpiredJwtException e) {
+                System.out.println("⚠️ El Token ha expirado. Se ignorará para forzar re-login.");
+                // No hacemos nada, dejamos username en null.
+                // Spring Security bloqueará la petición más adelante con un 403 normal.
+            } catch (Exception e) {
+                System.out.println("❌ Error al procesar el token: " + e.getMessage());
+            }
         }
 
-        // Este es el punto clave donde se verifica si el token JWT es válido y se establece
-        // la autenticación del usuario en el contexto de seguridad de Spring Security.
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
-            if (jwtUtil.validateToken(jwt, userDetails)) {
-
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-                usernamePasswordAuthenticationToken
-                        .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-                //siempre por ser stateless, se debe establecer el contexto de seguridad
+            // Validamos el token una vez más (incluyendo expiración)
+            try {
+                if (jwtUtil.validateToken(jwt, userDetails)) {
+                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
+                    usernamePasswordAuthenticationToken
+                            .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                }
+            } catch (Exception e) {
+                System.out.println("⚠️ Token inválido durante la validación final.");
             }
         }
 
-        chain.doFilter(request, response);//ya va al controller o al siguiente filtro en la cadena
+        chain.doFilter(request, response);
     }
 }
