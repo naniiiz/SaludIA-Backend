@@ -26,11 +26,10 @@ public class EnfermedadController {
 
     // READ ALL
     @GetMapping("/enfermedades")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<EnfermedadDTO>> listar() {
-        return ResponseEntity.ok(enfermedadService.findAll());
+    @PreAuthorize("isAuthenticated()")
+    public List<EnfermedadDTO> listar() {
+        return enfermedadService.findAll();
     }
-
     // READ BY ID
     @GetMapping("/enfermedades/{id}")
     @PreAuthorize("hasRole('ADMIN')")

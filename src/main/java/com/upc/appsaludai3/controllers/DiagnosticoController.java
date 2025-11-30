@@ -56,13 +56,10 @@ public class DiagnosticoController {
         diagnosticoService.borrar(id);
     }
 
-    // --- ¡AQUÍ ESTÁ LA CORRECCIÓN CLAVE! ---
-    // Antes quizás tenías 'hasRole(ADMIN)'.
-    // Lo cambiamos a 'isAuthenticated()' para que tu usuario nuevo (ROLE_USER) pueda entrar.
     @GetMapping("/diagnosticos/usuario/{idPerfil}")
     @PreAuthorize("isAuthenticated()")
     public List<DiagnosticoDTO> buscarPorPerfil(@PathVariable Long idPerfil) {
-        System.out.println("✅ Solicitud de historial recibida en Controller.");
+        System.out.println("✅ Petición de Historial permitida para usuario logueado.");
         return diagnosticoService.buscarPorPerfil(idPerfil);
     }
 }

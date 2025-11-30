@@ -39,25 +39,24 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7);
 
-            // --- BLOQUE TRY-CATCH AGREGADO PARA MANEJAR TOKEN VENCIDO ---
+            // --- PROTECCIÓN CONTRA TOKENS VENCIDOS ---
             try {
                 username = jwtUtil.extractUsername(jwt);
-                System.out.println("✅ Token recibido para usuario: " + username);
             } catch (ExpiredJwtException e) {
-                System.out.println("⚠️ El Token ha expirado. Se ignorará para forzar re-login.");
-                // No hacemos nada, dejamos username en null.
-                // Spring Security bloqueará la petición más adelante con un 403 normal.
+                System.out.println("⚠️ Token expirado detectado. Se ignorará para permitir re-login anónimo.");
+                // No hacemos nada (username se queda null).
+                // Esto permite que la petición continúe como "Anónima".
+                // Si la ruta requiere auth, Spring devolverá 403 (correcto).
+                // Si la ruta es pública (/login), Spring dejará pasar (correcto).
             } catch (Exception e) {
-                System.out.println("❌ Error al procesar el token: " + e.getMessage());
+                System.out.println("❌ Error analizando token: " + e.getMessage());
             }
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-
-            // Validamos el token una vez más (incluyendo expiración)
             try {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+
                 if (jwtUtil.validateToken(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.getAuthorities());
@@ -66,7 +65,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
                 }
             } catch (Exception e) {
-                System.out.println("⚠️ Token inválido durante la validación final.");
+                System.out.println("⚠️ Error validando usuario en filtro: " + e.getMessage());
             }
         }
 

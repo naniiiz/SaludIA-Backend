@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "${ip.frontend}", allowCredentials = "true", exposedHeaders = "Authorization") //para cloud
+@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true", exposedHeaders = "Authorization")
 @RestController
 @RequestMapping("/api")
 public class UbicacionController {
@@ -18,22 +18,23 @@ public class UbicacionController {
     private IUbicacionServices ubicacionService;
 
     // CREATE
-    @PreAuthorize("hasRole('USER')")
     @PostMapping("/ubicaciones")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UbicacionDTO> registrar(@RequestBody UbicacionDTO ubicacionDTO) {
         return ResponseEntity.ok(ubicacionService.registrar(ubicacionDTO));
     }
 
     // READ ALL
-    @PreAuthorize("hasRole('ADMIN')")
+    // Importante: Permitir listar ubicaciones para desplegables o info de usuario
     @GetMapping("/ubicaciones")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<UbicacionDTO>> listar() {
         return ResponseEntity.ok(ubicacionService.findAll());
     }
 
     // READ BY ID
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/ubicaciones/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Ubicacion> buscarPorId(@PathVariable Long id) {
         Ubicacion ubicacion = ubicacionService.findById(id);
         if (ubicacion != null) {
@@ -44,7 +45,7 @@ public class UbicacionController {
 
     // UPDATE
     @PutMapping("/ubicaciones/{id}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
     public ResponseEntity<Ubicacion> actualizar(@PathVariable Long id,
                                                 @RequestBody Ubicacion ubicacion) {
         ubicacion.setId(id);
@@ -56,8 +57,8 @@ public class UbicacionController {
     }
 
     // DELETE
-    @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/ubicaciones/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<Void> borrar(@PathVariable Long id) {
         ubicacionService.borrar(id);
         return ResponseEntity.noContent().build();

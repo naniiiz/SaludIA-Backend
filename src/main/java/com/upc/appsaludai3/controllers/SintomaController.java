@@ -25,11 +25,10 @@ public class SintomaController {
 
     // READ ALL
     @GetMapping("/sintomas")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<List<SintomaDTO>> listar() {
-        return ResponseEntity.ok(sintomaService.findAll());
+    @PreAuthorize("isAuthenticated()")
+    public List<SintomaDTO> listar() {
+        return sintomaService.findAll();
     }
-
     // READ BY ID
     @GetMapping("/sintomas/{id}")
     @PreAuthorize("hasRole('ADMIN')")

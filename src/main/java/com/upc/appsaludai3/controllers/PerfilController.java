@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "${ip.frontend}", allowCredentials = "true", exposedHeaders = "Authorization") //para cloud
+@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true", exposedHeaders = "Authorization")
 @RestController
 @RequestMapping("/api")
 public class PerfilController {
@@ -19,20 +19,22 @@ public class PerfilController {
 
     // CREATE - POST
     @PostMapping("/perfiles")
+    @PreAuthorize("isAuthenticated()") // Permitir a cualquier logueado crear perfil si no tiene
     public ResponseEntity<PerfilDTO> registrar(@RequestBody PerfilDTO perfilDTO) {
         return ResponseEntity.ok(perfilService.registrar(perfilDTO));
     }
 
     // READ ALL - GET
+    // CAMBIO: Usamos hasAnyAuthority para permitir que tu usuario ROLE_USER vea la lista
     @GetMapping("/perfiles")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
     public ResponseEntity<List<PerfilDTO>> listar() {
         return ResponseEntity.ok(perfilService.findAll());
     }
 
     // READ BY ID - GET
     @GetMapping("/perfiles/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
     public ResponseEntity<Perfil> buscarPorId(@PathVariable Long id) {
         Perfil perfil = perfilService.findById(id);
         if (perfil != null) {
@@ -42,7 +44,9 @@ public class PerfilController {
     }
 
     // UPDATE - PUT
+    // CAMBIO: Permitimos editar. El frontend envía el objeto para actualizar.
     @PutMapping("/perfiles/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
     public ResponseEntity<Perfil> actualizar(@PathVariable Long id,
                                              @RequestBody Perfil perfil) {
         perfil.setId(id);
@@ -55,18 +59,16 @@ public class PerfilController {
 
     // DELETE
     @DeleteMapping("/perfiles/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')") // Borrar solo ADMIN (por seguridad)
     public ResponseEntity<Void> borrar(@PathVariable Long id) {
         perfilService.borrar(id);
         return ResponseEntity.noContent().build();
     }
 
-    // Buscar por nombre (containing)
+    // Buscar por nombre
     @GetMapping("/perfiles/nombre/{palabra}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
     public ResponseEntity<List<PerfilDTO>> buscarPorNombre(@PathVariable String palabra) {
         return ResponseEntity.ok(perfilService.buscarPorNombre(palabra));
     }
-
-
-
 }

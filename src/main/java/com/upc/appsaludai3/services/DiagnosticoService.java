@@ -51,34 +51,26 @@ public class DiagnosticoService implements IDiagnosticoServices {
         diagnostico.setConsentimiento(diagnosticoDTO.getConsentimiento());
         diagnostico.setFecha(diagnosticoDTO.getFecha() != null ? diagnosticoDTO.getFecha() : LocalDateTime.now());
 
-        // 1. SEGURIDAD: Obtener el usuario REAL desde el token
+        // 1. Obtener usuario del Token
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        System.out.println("📥 Registrando diagnóstico para usuario: " + username);
-
         User usuarioLogueado = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Usuario del token no encontrado en BD"));
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        // 2. BUSCAR O CREAR PERFIL
-        // Buscamos si este usuario User ya tiene un Perfil asociado
+        // 2. Buscar/Crear Perfil
         Perfil perfil = buscarPerfilPorUsuario(usuarioLogueado);
-
-        // Si no tiene perfil, lo creamos automáticamente
         if (perfil == null) {
-            System.out.println("⚠️ Usuario " + username + " no tiene Perfil. Creando uno automático...");
             perfil = crearPerfilAutomatico(usuarioLogueado);
         }
-
-        System.out.println("✅ Perfil asignado ID: " + perfil.getId());
         diagnostico.setPerfil(perfil);
 
-        // 3. ASIGNAR SÍNTOMAS
+        // 3. Síntomas
         List<Sintoma> sintomasSeleccionados = null;
         if (diagnosticoDTO.getIdsSintomas() != null && !diagnosticoDTO.getIdsSintomas().isEmpty()) {
             sintomasSeleccionados = sintomaRepository.findAllById(diagnosticoDTO.getIdsSintomas());
             diagnostico.setSintomas(sintomasSeleccionados);
         }
 
-        // 4. LÓGICA DE IA (Calcular enfermedad)
+        // 4. Calcular Enfermedad (IA Simple)
         if (diagnosticoDTO.getIdEnfermedad() == null && sintomasSeleccionados != null) {
             Enfermedad enfermedadDetectada = calcularEnfermedadMasProbable(sintomasSeleccionados);
             diagnostico.setEnfermedad(enfermedadDetectada);
@@ -92,38 +84,33 @@ public class DiagnosticoService implements IDiagnosticoServices {
 
     @Override
     public List<DiagnosticoDTO> buscarPorPerfil(Long idPerfilSolicitado) {
-        // 1. SEGURIDAD: Identificar quién está pidiendo los datos
+        // --- LÓGICA INTELIGENTE PARA HISTORIAL ---
+        // Ignoramos el ID '0' que manda Angular y usamos el usuario del Token.
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        System.out.println("🔍 Buscando historial para: " + username);
-
-        // 2. Obtener el usuario y su perfil REAL
         User usuarioLogueado = userRepository.findByUsername(username).orElse(null);
+
         if (usuarioLogueado == null) return List.of();
 
+        // Buscamos el perfil REAL de este usuario en la base de datos
         Perfil perfilReal = buscarPerfilPorUsuario(usuarioLogueado);
 
-        // Si el usuario no tiene perfil, no tiene historial
         if (perfilReal == null) {
+            System.out.println("⚠️ Usuario " + username + " no tiene perfil, retornando lista vacía.");
             return List.of();
         }
 
-        // 3. FUERZA BRUTA: Ignoramos el idPerfil que viene del frontend
-        // y usamos el ID del perfil asociado al token.
-        // (A menos que fueras ADMIN, pero por seguridad general lo forzamos al usuario)
-        Long idPerfilReal = perfilReal.getId();
-        System.out.println("🔒 Forzando búsqueda para Perfil ID: " + idPerfilReal);
+        System.out.println("🔍 Mostrando historial para: " + username + " (Perfil ID: " + perfilReal.getId() + ")");
 
-        return diagnosticoRepository.findByPerfil_Id(idPerfilReal)
+        // Retornamos los diagnósticos de ESE perfil
+        return diagnosticoRepository.findByPerfil_Id(perfilReal.getId())
                 .stream()
                 .map(d -> modelMapper.map(d, DiagnosticoDTO.class))
                 .collect(Collectors.toList());
     }
 
-    // --- MÉTODOS AUXILIARES ---
+    // --- Métodos Privados de Apoyo ---
 
     private Perfil buscarPerfilPorUsuario(User user) {
-        // Busca en todos los perfiles aquel que tenga este User ID
-        // Nota: Idealmente deberías tener un método en repositorio: findByUser_Id(Long userId)
         return perfilRepository.findAll().stream()
                 .filter(p -> p.getUser() != null && p.getUser().getId().equals(user.getId()))
                 .findFirst()
@@ -132,9 +119,9 @@ public class DiagnosticoService implements IDiagnosticoServices {
 
     private Perfil crearPerfilAutomatico(User user) {
         Ubicacion ubicacion = new Ubicacion();
-        ubicacion.setDireccion("Sin dirección");
-        ubicacion.setDistrito("Sin distrito");
-        ubicacion.setProvincia("Sin provincia");
+        ubicacion.setDireccion("-");
+        ubicacion.setDistrito("-");
+        ubicacion.setProvincia("-");
         ubicacion = ubicacionRepository.save(ubicacion);
 
         Perfil nuevoPerfil = new Perfil();
@@ -142,7 +129,6 @@ public class DiagnosticoService implements IDiagnosticoServices {
         nuevoPerfil.setEmail(user.getUsername());
         nuevoPerfil.setNombre("Paciente " + user.getUsername());
         nuevoPerfil.setUbicacion(ubicacion);
-
         return perfilRepository.save(nuevoPerfil);
     }
 
