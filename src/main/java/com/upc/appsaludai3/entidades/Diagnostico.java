@@ -1,6 +1,7 @@
 package com.upc.appsaludai3.entidades;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,27 +18,35 @@ import java.util.List;
 @NoArgsConstructor
 @Table(name="Diagnostico")
 public class Diagnostico {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Boolean consentimiento;
+
     private LocalDateTime fecha;
-    //AGREGADO
-    @ManyToOne
-    @JoinColumn(name="idPerfil", nullable = false)
-    @JsonIgnore
+
+    private Boolean consentimiento;
+
+    // Relación con el Usuario/Perfil
+    // CAMBIO: Lo ponemos (nullable = true) temporalmente.
+    // Como tu tabla 'perfil' está vacía al inicio, esto evita que la app explote
+    // si no encuentra el perfil del usuario.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_perfil", nullable = true)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Perfil perfil;
-    // Relación ManyToOne con Enfermedad
-    @ManyToOne
-    @JoinColumn(name="idEnfermedad", nullable = false)
+
+    // Relación con Enfermedad (Ya corregida previamente)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_enfermedad", nullable = true)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Enfermedad enfermedad;
-    //Relación ManyToMany con Sintoma
-    @ManyToMany (fetch = FetchType.EAGER)
+
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-            name = "DiagnosticoSintoma",
-            joinColumns = @JoinColumn(name = "idDiagnostico"),
-            inverseJoinColumns = @JoinColumn(name = "idSintoma")
+            name = "diagnostico_sintoma",
+            joinColumns = @JoinColumn(name = "id_diagnostico"),
+            inverseJoinColumns = @JoinColumn(name = "id_sintoma")
     )
-    @JsonIgnore
     private List<Sintoma> sintomas;
 }

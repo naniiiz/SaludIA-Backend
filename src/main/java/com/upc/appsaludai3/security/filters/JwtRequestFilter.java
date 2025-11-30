@@ -64,6 +64,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 //siempre por ser stateless, se debe establecer el contexto de seguridad
             }
         }
+
         chain.doFilter(request, response);//ya va al controller o al siguiente filtro en la cadena
     }
 }
